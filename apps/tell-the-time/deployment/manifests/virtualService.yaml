@@ -9,7 +9,6 @@ spec:
   - istio-system/ingress-gateway
   hosts: 
   - v3.time-keeper.watch
-  - *
   http:
   - match:
     - uri:
