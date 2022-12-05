@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 kubectl delete namespace istio-system 
-sleep 10s
+sleep 30s
 kubectl apply -f istio/namespaces/namespace.yaml
 kubectl apply -f istio/install-manifests.yaml || true
 kubectl apply -f istio/install-manifests.yaml || true
