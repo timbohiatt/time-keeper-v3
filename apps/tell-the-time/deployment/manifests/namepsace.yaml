@@ -1,8 +1,0 @@
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ns-tell-the-time
-  labels:
-    name: ns-tell-the-time
-    istio-injection: enabled
