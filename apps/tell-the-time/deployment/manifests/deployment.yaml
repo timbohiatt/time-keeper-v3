@@ -2,24 +2,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-pasta
-  namespace: app-pasta
+  name: app-time-now
+  namespace: app-time-now
   labels:
     project: google
-    app: pasta
+    app: time-now
     cost-center: google-0001
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: pasta
+      app: time-now
   template:
     metadata:
       labels:
-        app: pasta
+        app: time-now
     spec:
       containers:
-      - name: app-pasta
-        image: hello-world
+      - name: app-time-now
+        image: gcr.io/cloudrun/hello
         ports:
         - containerPort: 8080

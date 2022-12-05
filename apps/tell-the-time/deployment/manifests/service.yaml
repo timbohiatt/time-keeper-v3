@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-pasta
-  namespace: app-pasta
+  name: app-time-now
+  namespace: app-time-now
   labels:
     project: google
-    app: pasta
+    app: time-now
     cost-center: google-0001
 spec: 
   selector: 
-    app: pasta
+    app: time-now
   ports: 
   - name: http
     port: 8080

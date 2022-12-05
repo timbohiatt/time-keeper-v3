@@ -2,20 +2,20 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: app-pasta
-  namespace: app-pasta
+  name: app-time-now
+  namespace: app-time-now
 spec: 
   gateways:
   - istio-system/ingress-gateway
   hosts: 
-  - v1.time-keeper.watch
+  - v3.time-keeper.watch
   http:
   - match:
     - uri:
-        prefix: /pasta
+        prefix: /
     route: 
     - destination: 
-        host: app-pasta.app-pasta.svc.cluster.local
+        host: app-time-now.app-time-now.svc.cluster.local
         port: 
           number: 8080
 
