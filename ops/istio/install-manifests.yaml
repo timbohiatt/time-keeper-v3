@@ -10363,6 +10363,8 @@ metadata:
     operator.istio.io/component: "IngressGateways"
 spec:
   type: LoadBalancer
+  serviceAnnotations:
+    cloud.google.com/load-balancer-type: "Internal"
   selector:
     app: istio-ingressgateway
     istio: ingressgateway
