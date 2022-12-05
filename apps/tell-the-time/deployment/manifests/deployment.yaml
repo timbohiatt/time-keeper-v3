@@ -1,0 +1,25 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-pasta
+  namespace: app-pasta
+  labels:
+    project: google
+    app: pasta
+    cost-center: google-0001
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pasta
+  template:
+    metadata:
+      labels:
+        app: pasta
+    spec:
+      containers:
+      - name: app-pasta
+        image: hello-world
+        ports:
+        - containerPort: 8080
