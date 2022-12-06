@@ -10354,7 +10354,8 @@ metadata:
   name: istio-ingressgateway
   namespace: istio-system
   annotations:
-    networking.gke.io/load-balancer-type: "Internal"
+    cloud.google.com/neg: '{"exposed_ports": {"80":{"name": "thiatt-test-lb"}}}'
+    #networking.gke.io/load-balancer-type: "Internal"
   labels:
     app: istio-ingressgateway
     istio: ingressgateway
@@ -10363,7 +10364,8 @@ metadata:
     install.operator.istio.io/owning-resource: unknown
     operator.istio.io/component: "IngressGateways"
 spec:
-  type: LoadBalancer
+  #type: LoadBalancer
+  type: ClusterIP
   selector:
     app: istio-ingressgateway
     istio: ingressgateway
