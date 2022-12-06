@@ -10354,7 +10354,7 @@ metadata:
   name: istio-ingressgateway
   namespace: istio-system
   annotations:
-    cloud.google.com/neg: '{"exposed_ports": {"80":{"name": "thiatt-test-int-lb"}}}'
+    cloud.google.com/neg: '{"exposed_ports": {"80":{"name": "test200-a"}}}'
     networking.gke.io/load-balancer-type: "Internal"
   labels:
     app: istio-ingressgateway
