@@ -1,6 +1,6 @@
 resource "google_compute_global_address" "gbl-ext-lb" {
   project = google_project.project.project_id
-  name = "${var.prefix}-${var.demo_name}-${var.env}-gbl-ext-lb-ip"
+  name    = "${var.prefix}-${var.demo_name}-${var.env}-gbl-ext-lb-ip"
 }
 
 /*

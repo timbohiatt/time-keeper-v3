@@ -81,9 +81,10 @@ variable "defaults" {
       enable_private_nodes    = optional(bool)
       master_ipv4_cidr_block  = optional(string)
     })
-    logging_service               = optional(string)
-    monitoring_service            = optional(string)
-    enable_cost_management_config = optional(bool)
+    logging_service                        = optional(string)
+    monitoring_service                     = optional(string)
+    enable_cost_management_config          = optional(bool)
+    master_authorized_networks_cidr_blocks = optional(list(map(string)))
   })
   default = null
 }
@@ -105,4 +106,8 @@ variable "service_account_internal" {
   default     = null
 }
 
-
+variable "master_authorized_networks_cidr_blocks" {
+  type        = list(map(string))
+  default     = []
+  description = "Defines up to 20 external networks that can access Kubernetes master through HTTPS."
+}

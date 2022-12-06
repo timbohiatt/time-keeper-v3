@@ -33,7 +33,6 @@ resource "google_compute_firewall" "jump-ssh-allow" {
 }
 
 
-
 resource "google_service_account" "jump-vm" {
   project      = google_project.project.project_id
   account_id   = "${var.prefix}-${var.env}-jump-vm"
@@ -67,7 +66,7 @@ resource "google_compute_instance" "jump-vm" {
     //}
   }
 
-  metadata_startup_script = "sudo apt-get install git kubectl google-cloud-sdk-gke-gcloud-auth-plugin -y && git clone https://github.com/timbohiatt/time-keeper && cd time-keeper && git checkout timhiatt/v3.0"
+  metadata_startup_script = "sudo apt-get install git kubectl google-cloud-sdk-gke-gcloud-auth-plugin -y && git clone https://github.com/timbohiatt/time-keeper-v3 && cd time-keeper && git checkout timhiatt/v3.0"
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
@@ -86,7 +85,7 @@ resource "google_compute_project_metadata" "enable-oslogin" {
 resource "google_compute_subnetwork" "subnet-jump-vm" {
   project                  = google_project.project.project_id
   network                  = module.vpc-spoke-1.self_link
-  name = "${var.prefix}-gke-${var.region}-sub-mytimekeeper-jump-vm"
+  name                     = "${var.prefix}-gke-${var.region}-sub-mytimekeeper-jump-vm"
   region                   = var.region
   ip_cidr_range            = "10.128.40.0/21"
   private_ip_google_access = true

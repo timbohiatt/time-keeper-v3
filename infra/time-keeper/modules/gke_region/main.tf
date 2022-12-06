@@ -56,6 +56,10 @@ locals {
     var.master_global_access_config_enabled, try(var.defaults.master_global_access_config_enabled, true)
   )
 
+  master_authorized_networks_cidr_blocks = coalesce(
+    var.master_authorized_networks_cidr_blocks, try(var.defaults.master_authorized_networks_cidr_blocks, [])
+  )
+
 }
 
 
@@ -132,11 +136,15 @@ resource "google_container_cluster" "gke" {
     }
   }
 
+
   master_authorized_networks_config {
-    /*cidr_blocks {
-      cidr_block   = "0.0.0.0/0"
-      display_name = "all"
-    }*/
+    dynamic "cidr_blocks" {
+      for_each = local.master_authorized_networks_cidr_blocks != null ? local.master_authorized_networks_cidr_blocks : []
+      content {
+        cidr_block   = cidr_blocks.value.cidr_block
+        display_name = cidr_blocks.value.display_name
+      }
+    }
   }
 
   ip_allocation_policy {
