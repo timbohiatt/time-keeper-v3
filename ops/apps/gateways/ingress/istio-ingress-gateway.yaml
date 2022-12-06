@@ -12,6 +12,10 @@ spec:
       number: 80
       name: http
       protocol: HTTP
+  - port: 
+      number: 443
+      name: https
+      protocol: HTTPS
     hosts:
     - v3.time-keeper.watch
     - bank.v3.time-keeper.watch
