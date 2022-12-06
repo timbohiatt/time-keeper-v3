@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-source ./istio/setup
-source ./argocd/setup
-source ./apps/setup
+source ./istio/setup.sh
+source ./argocd/setup.sh
+source ./apps/setup.sh
