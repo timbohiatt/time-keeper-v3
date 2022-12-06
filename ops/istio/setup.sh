@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 kubectl delete namespace istio-system 
-kubectl apply -f istio/namespaces/namespace.yaml
-kubectl apply -f istio/install-manifests.yaml || true
-kubectl apply -f istio/install-manifests.yaml || true
-kubectl apply -f istio/plugins --recursive || true
+kubectl apply -f namespaces/namespace.yaml
+kubectl apply -f install-manifests.yaml || true
+kubectl apply -f install-manifests.yaml || true
+kubectl apply -f plugins --recursive || true
