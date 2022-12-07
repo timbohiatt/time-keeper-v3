@@ -10354,7 +10354,7 @@ metadata:
   name: istio-ingressgateway
   namespace: istio-system
   annotations:
-    cloud.google.com/neg: '{"exposed_ports": {"80":{"name": "tk-gke-istio-ingress-australia-southeast1"}}}'
+    cloud.google.com/neg: '{"exposed_ports": {"80":{"name": "tk-gke-istio-ingress-us-west1"}}}'
     networking.gke.io/load-balancer-type: "Internal"
   labels:
     app: istio-ingressgateway
