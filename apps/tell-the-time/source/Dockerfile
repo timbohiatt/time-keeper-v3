@@ -7,6 +7,7 @@ WORKDIR /app
 
 COPY go.mod ./
 COPY go.sum ./
+COPY .env ./
 RUN go mod download
 
 ADD . ./
@@ -19,6 +20,7 @@ FROM gcr.io/distroless/base-debian11
 WORKDIR /
 
 COPY --from=build /tell-the-time /tell-the-time
+COPY --from=build /.env /.env
 
 EXPOSE 8080
 

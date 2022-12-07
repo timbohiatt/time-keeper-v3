@@ -90,3 +90,12 @@ resource "google_compute_subnetwork" "subnet-jump-vm" {
   ip_cidr_range            = "10.128.40.0/21"
   private_ip_google_access = true
 }
+
+module "nat-jump-vm" {
+  source         = "./modules/net-cloudnat"
+  project_id     = google_project.project.project_id
+  region         = var.region
+  name           = "${var.prefix}-${var.demo_name}-${var.env}-${var.region}-jump-vm-nat"
+  router_name    = "${var.prefix}-${var.demo_name}-${var.env}-${var.region}-jump-vm-rtr"
+  router_network = module.vpc-spoke-1.self_link
+}
