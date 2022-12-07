@@ -21,7 +21,7 @@ module "gke_region" {
   master_authorized_networks_cidr_blocks = coalesce([{
     cidr_block   = google_compute_subnetwork.subnet-jump-vm.ip_cidr_range
     display_name = "jump-vm"
-    }, ], try(each.value.master_authorized_networks_cidr_blocks, []))
+  }, ], try(each.value.master_authorized_networks_cidr_blocks, []))
   //depends_on = [google_compute_firewall.egress-allow-gke-node, google_compute_firewall.ingress-allow-gke-node]
 }
  

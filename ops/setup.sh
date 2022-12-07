@@ -9,9 +9,9 @@ kubectl apply -f istio/plugins --recursive || true
 
 # Ops
 kubectl delete namespace ops-argocd
-kubectl delete namespace ops-argocd 
 kubectl apply -f argocd/namespaces/namespace.yaml
-kubectl apply -f argocd/install-manifests.yaml  -n ops-argocd || true
+kubectl apply -f argocd/install-manifests.yaml || true
+kubectl apply -f virtualService.yaml  -n ops-argocd || true
 
 # Apps
 kubectl delete namespace app-time-now
