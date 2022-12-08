@@ -82,7 +82,7 @@ resource "google_compute_instance" "jump-vm" {
     //}
   }
 
-  metadata_startup_script = "sudo apt-get install git kubectl google-cloud-sdk-gke-gcloud-auth-plugin -y && git clone https://github.com/timbohiatt/time-keeper-v3 && cd time-keeper && git checkout timhiatt/v3.0"
+  metadata_startup_script = "sudo apt-get install git kubectl google-cloud-sdk-gke-gcloud-auth-plugin -y && git clone https://github.com/timbohiatt/time-keeper-v3 && cd time-keeper-v3 && git checkout timhiatt/v3.0"
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
