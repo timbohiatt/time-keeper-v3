@@ -26,7 +26,7 @@ metadata:
   name: autoneg
   namespace: autoneg-system
   annotations:
-    iam.gke.io/gcp-service-account: tk-lcl-config-connector@tk-v3-lcl-7837.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: tk-lcl-config-connector@tk-v3-lcl-9610.iam.gserviceaccount.com
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
