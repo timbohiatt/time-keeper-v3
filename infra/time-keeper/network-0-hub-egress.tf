@@ -1,4 +1,5 @@
 resource "google_compute_subnetwork" "hub-subnet-egress" {
+  project = google_project.project.project_id
   name                     = "${var.prefix}-${var.demo_name}-${var.env}-hub-egress-${var.region}"
   ip_cidr_range            = "10.128.16.0/21"
   network                  = module.vpc-hub.self_link
@@ -22,7 +23,7 @@ resource "google_compute_health_check" "autohealing" {
 
 resource "google_compute_instance_group_manager" "instance_group_manager" {
   name               = "${var.prefix}-${var.demo_name}-${var.env}-mig-egress-squid"
-  
+  project = google_project.project.project_id
   version {
     instance_template  = google_compute_instance_template.egress-squid.id
   }
@@ -38,6 +39,8 @@ resource "google_service_account" "sc-mig-egress-squid" {
 }
 
 resource "google_compute_instance_template" "egress-squid" {
+  project = google_project.project.project_id
+  region = var.region
   name_prefix  = "${var.prefix}-${var.demo_name}-${var.env}-mig-egress-squid"
   description = "Egress Squid Proxy in Hub Network in ${var.region}."
   tags = ["${var.prefix}-${var.demo_name}-${var.env}-egress-squid"]
@@ -53,10 +56,10 @@ resource "google_compute_instance_template" "egress-squid" {
   machine_type         = "n2-standard-8"
   can_ip_forward       = true
 
-  scheduling {
-    automatic_restart   = true
+  scheduling { 
+    automatic_restart   = true 
     on_host_maintenance = "MIGRATE"
-  }
+  } 
 
   // Create a new boot disk from an image
   disk {
@@ -70,13 +73,16 @@ resource "google_compute_instance_template" "egress-squid" {
   // Use an existing disk resource
   disk {
     // Instance Templates reference disks by name, not self link
-    source      = google_compute_disk.egress-squid.name
+    //source_image      = google_compute_disk.egress-squid.name
+    disk_type = "pd-ssd"
+    disk_size_gb = "100"
     auto_delete = false
     boot        = false
   }
 
   network_interface {
-    //network = module.vpc-hub.self_link
+    // network = module.vpc-hub.self_link
+    subnetwork_project = google_project.project.project_id
     subnetwork    = google_compute_subnetwork.hub-subnet-egress.name
   }
 
@@ -92,14 +98,14 @@ data "google_compute_image" "egress-squid" {
   project = "debian-cloud"
 }
 
-resource "google_compute_disk" "egress-squid" {
+/*resource "google_compute_disk" "egress-squid" {
   project = google_project.project.project_id
   name  = "${var.prefix}-${var.demo_name}-${var.env}-egress-squid-disk"
   image = data.google_compute_image.egress-squid.self_link
   size  = 50
   type  = "pd-ssd"
   zone  = "europe-west6-a"
-}
+}*/
 
 resource "google_compute_resource_policy" "daily_backup" {
   project = google_project.project.project_id
@@ -119,6 +125,7 @@ resource "google_compute_resource_policy" "daily_backup" {
 
 # forwarding rule
 resource "google_compute_forwarding_rule" "google_compute_forwarding_rule" {
+  project = google_project.project.project_id
   name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb-forwarding-rule"
   backend_service       = google_compute_region_backend_service.egress-squid.id
   region                = "europe-west6"
@@ -132,6 +139,7 @@ resource "google_compute_forwarding_rule" "google_compute_forwarding_rule" {
 
 # backend service
 resource "google_compute_region_backend_service" "egress-squid" {
+  project = google_project.project.project_id
   name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb-backend-subnet"
   region                = "europe-west6"
   protocol              = "TCP"

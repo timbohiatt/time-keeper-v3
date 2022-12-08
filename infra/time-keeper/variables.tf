@@ -80,3 +80,8 @@ variable "ip_secondary_ranges" {
     spoke-1-services = "172.16.0.0/24"
   }
 }
+
+
+variable "domain"{
+  type = string
+}

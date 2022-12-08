@@ -16,9 +16,9 @@
 
 resource "google_dns_managed_zone" "dns-zone" {
   project     = google_project.project.project_id
-  name        = "v3-lcl-time-keeper-watch"
-  dns_name    = "v3.lcl.time-keeper.watch."
-  description = "v3 lcl time keeper zone"
+  name        = "${var.demo_name}-${var.env}-time-keeper-watch"
+  dns_name    = "${var.demo_name}.${var.env}.${var.domain}."
+  description = "${var.demo_name} ${var.env} time keeper zone"
 }
 
 resource "google_dns_record_set" "record-1" {
@@ -29,7 +29,7 @@ resource "google_dns_record_set" "record-1" {
 
   managed_zone = google_dns_managed_zone.dns-zone.name
 
-  rrdatas = [google_compute_global_address.gbl-ext-ip.address]
+  rrdatas = [google_compute_global_address.gbl-ext-lb.address]
 }
 
 resource "google_dns_record_set" "record-2" {
@@ -40,5 +40,5 @@ resource "google_dns_record_set" "record-2" {
 
   managed_zone = google_dns_managed_zone.dns-zone.name
 
-  rrdatas = [google_compute_global_address.gbl-ext-ip.address]
+  rrdatas = [google_compute_global_address.gbl-ext-lb.address]
 }
