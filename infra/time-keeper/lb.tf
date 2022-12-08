@@ -63,9 +63,9 @@ module "load_balancer" {
   backends = {
     default = {
       description                     = null
-      protocol                        = "HTTPS"
-      port                            = 443
-      port_name                       = "https"
+      protocol                        = "HTTP"
+      port                            = 8080
+      port_name                       = "http"
       timeout_sec                     = 30
       connection_draining_timeout_sec = 0
       enable_cdn                      = false

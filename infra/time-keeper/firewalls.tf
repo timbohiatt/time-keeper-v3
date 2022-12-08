@@ -37,8 +37,8 @@ resource "google_compute_firewall" "gke-lb-health-checks" {
   target_service_accounts = [
     google_service_account.gke_service_account.email,
     google_service_account.gke_egress_service_account.email,
-    google_service_account.gke_worker_service_account.email
-
+    google_service_account.gke_worker_service_account.email,
+    google_service_account.config_connector_service_account.email,
   ]
 }
 
