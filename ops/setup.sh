@@ -2,6 +2,7 @@
 
 # Delete/Cleanup
 kubectl delete namespace autoneg-system
+sleep 30
 kubectl delete namespace istio-system 
 kubectl delete namespace ops-argocd
 kubectl delete namespace app-time-now
