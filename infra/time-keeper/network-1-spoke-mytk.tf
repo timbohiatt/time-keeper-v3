@@ -32,3 +32,17 @@ module "hub-to-spoke-1-peering" {
   export_peer_custom_routes  = false
   //depends_on                 = [module.hub-to-spoke-1-peering]
 }
+
+
+module "nat-spoke" {
+  for_each = {
+    for k, v in local.gke_clusters : k => v
+    if v.enabled
+  }
+  source         = "./modules/net-cloudnat"
+  project_id     = google_project.project.project_id
+  region         = try(each.value.region, null)
+  name           = "${var.prefix}-${var.demo_name}-${var.env}-spoke-nat-gw-${each.value.region}"
+  router_name    = "${var.prefix}-${var.demo_name}-${var.env}-spoke-nat-rtr-${each.value.region}"
+  router_network = module.vpc-spoke-1.self_link
+}

@@ -47,7 +47,7 @@ resource "google_project_iam_member" "jump-vm-admin" {
 
 resource "google_compute_instance" "jump-vm" {
   project      = google_project.project.project_id
-  name         = "jump-vm"
+  name         = "${var.prefix}-${var.demo_name}-${var.env}-jump-vm"
   machine_type = "n2-standard-8"
   zone         = "europe-west6-a"
 
@@ -91,6 +91,7 @@ resource "google_compute_subnetwork" "subnet-jump-vm" {
   private_ip_google_access = true
 }
 
+/*
 module "nat-jump-vm" {
   source         = "./modules/net-cloudnat"
   project_id     = google_project.project.project_id
@@ -98,4 +99,4 @@ module "nat-jump-vm" {
   name           = "${var.prefix}-${var.demo_name}-${var.env}-${var.region}-jump-vm-nat"
   router_name    = "${var.prefix}-${var.demo_name}-${var.env}-${var.region}-jump-vm-rtr"
   router_network = module.vpc-spoke-1.self_link
-}
+}*/

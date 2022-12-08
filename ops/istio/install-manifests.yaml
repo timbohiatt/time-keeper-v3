@@ -10354,8 +10354,12 @@ metadata:
   name: istio-ingressgateway
   namespace: istio-system
   annotations:
-    cloud.google.com/neg: '{"exposed_ports": {"80":{"name": "tk-gke-istio-ingress-australia-southeast1"}}}'
-    networking.gke.io/load-balancer-type: "Internal"
+    cloud.google.com/neg: '{"exposed_ports": {"80":{}}}'
+    controller.autoneg.dev/neg: '{"backend_services":{"80":[{"name":"tk-v3-lcl-gbl-ext-lb-backend-default","max_rate_per_endpoint":1000}]}}'
+    #cloud.google.com/neg: '{"exposed_ports": {"80":{},"443":{}}}'
+    #controller.autoneg.dev/neg: '{"backend_services":{"80":[{"name":"http-be","max_rate_per_endpoint":100}],"443":[{"name":"https-be","max_connections_per_endpoint":1000}]}}'
+    #cloud.google.com/neg: '{"exposed_ports": {"80":{"name": "tk-gke-istio-ingress-australia-southeast1"}}}'
+    #networking.gke.io/load-balancer-type: "Internal"
   labels:
     app: istio-ingressgateway
     istio: ingressgateway

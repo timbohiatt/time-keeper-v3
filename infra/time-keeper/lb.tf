@@ -39,14 +39,7 @@ module "load_balancer" {
     google_compute_managed_ssl_certificate.lb.self_link
   ]
 
-  /*managed_ssl_certificate_domains = [
-    "v3.${var.env}.time-keeper.watch",
-    "app.v3.${var.env}.time-keeper.watch",
-    "bank.app.v3.${var.env}.time-keeper.watch",
-    "ops.v3.${var.env}.time-keeper.watch",
-    "argo.ops.v3.${var.env}.time-keeper.watch",
-    "kiali.ops.v3.${var.env}.time-keeper.watch",
-  ]*/
+  
   https_redirect = true
   create_address = false
   address        = google_compute_global_address.gbl-ext-lb.self_link

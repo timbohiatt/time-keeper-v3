@@ -22,8 +22,8 @@ module "nat-hub" {
   source         = "./modules/net-cloudnat"
   project_id     = google_project.project.project_id
   region         = try(each.value.region, null)
-  name           = "${var.prefix}-${var.demo_name}-${var.env}-nat-gw-${each.value.region}"
-  router_name    = "${var.prefix}-${var.demo_name}-${var.env}-nat-rtr-${each.value.region}"
+  name           = "${var.prefix}-${var.demo_name}-${var.env}-hub-nat-gw-${each.value.region}"
+  router_name    = "${var.prefix}-${var.demo_name}-${var.env}-hub-nat-rtr-${each.value.region}"
   router_network = module.vpc-hub.self_link
 }
 /*

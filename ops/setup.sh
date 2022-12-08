@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# GKE AutoNEG
+kubectl delete namespace autoneg-system
+kubectl apply -f autoneg/install-manifests.yaml || true
+
 # Istio Mesh
 kubectl delete namespace istio-system 
 kubectl apply -f istio/namespaces/namespace.yaml

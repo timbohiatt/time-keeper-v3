@@ -17,7 +17,7 @@ private_cluster_config:
 
 # GKE Subnet IP Address Ranges
 subnet_config:
-  cidr_range: "10.128.0.0/21" # 2046 Hosts
+  cidr_range: "10.128.128.0/21" # 2046 Hosts
   #private_google_access: true
 
 # Service Account Email for GKE Cluster

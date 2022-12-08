@@ -37,6 +37,8 @@ locals {
     var.enable_cost_management_config, try(var.defaults.enable_cost_management_config, true)
   )
 
+  enable_config_connector = true
+
   #PCC = Private Cluster config
   pcc_enable_private_endpoint = coalesce(
     var.private_cluster_config.enable_private_endpoint, try(var.defaults.private_cluster_config.enable_private_endpoint, true)
@@ -91,6 +93,7 @@ resource "google_container_cluster" "gke" {
   cost_management_config {
     enabled = local.enable_cost_management_config
   }
+  
 
   master_auth {
     // Disable login auth to the cluster
@@ -156,9 +159,14 @@ resource "google_container_cluster" "gke" {
   }
 
   addons_config {
+
+    config_connector_config {
+      enabled = local.enable_config_connector
+    }
+
     network_policy_config {
       disabled = false
-    }
+    } 
   }
 
   //resource_labels = var.cluster_labels

@@ -1,4 +1,8 @@
 locals {
+  CCServiceAccountIAMRoles = [
+    "roles/owner",
+    "roles/editor",
+  ]
   GKEServiceAccountIAMRoles = [
     "roles/logging.logWriter",
     "roles/monitoring.metricWriter",
@@ -9,6 +13,14 @@ locals {
     "roles/editor",
     "roles/container.developer",
   ]
+}
+
+
+resource "google_project_iam_member" "config_connector_service_account" {
+  count   = length(local.CCServiceAccountIAMRoles)
+  project = google_project.project.project_id
+  role    = element(local.CCServiceAccountIAMRoles, count.index)
+  member  = "serviceAccount:${google_service_account.config_connector_service_account.email}"
 }
 
 resource "google_project_iam_member" "gke_service_account" {
