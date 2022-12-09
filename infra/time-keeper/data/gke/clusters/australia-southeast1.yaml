@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-enabled: false
+enabled: true
 
 # GKE Cluster Name 
 # cluster_name: 

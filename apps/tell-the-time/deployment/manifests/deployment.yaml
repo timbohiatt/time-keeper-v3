@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
       - name: app-time-now
-        image: gcr.io/cloudrun/hello
+        image: gcr.io/tk-automation-1483/v3-tell-the-time:v1.0
         ports:
         - containerPort: 8080

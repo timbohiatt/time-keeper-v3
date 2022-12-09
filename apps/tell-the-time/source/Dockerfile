@@ -20,7 +20,8 @@ FROM gcr.io/distroless/base-debian11
 WORKDIR /
 
 COPY --from=build /tell-the-time /tell-the-time
-COPY --from=build /.env /.env
+COPY --from=build /app/.env /.env
+COPY --from=build /app/web /web
 
 EXPOSE 8080
 
