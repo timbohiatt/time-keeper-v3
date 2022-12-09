@@ -16,6 +16,7 @@ spec:
     route: 
     - destination: 
         host: app-time-now.app-time-now.svc.cluster.local
+        
         port: 
           number: 8080
 
