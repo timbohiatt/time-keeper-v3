@@ -26,8 +26,8 @@ resource "google_compute_managed_ssl_certificate" "lb" {
   managed {
     domains = [
       "v3.${var.env}.time-keeper.watch",
-      "app.v3.${var.env}.time-keeper.watch",
-      "bank.app.v3.${var.env}.time-keeper.watch",
+      "apps.v3.${var.env}.time-keeper.watch",
+      "bank.apps.v3.${var.env}.time-keeper.watch",
       "ops.v3.${var.env}.time-keeper.watch",
       "argo.ops.v3.${var.env}.time-keeper.watch",
       "kiali.ops.v3.${var.env}.time-keeper.watch",
