@@ -1,0 +1,21 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata: 
+  name: ingress-gateway
+  namespace: istio-system
+spec: 
+  selector:
+    istio: ingressgateway
+  servers: 
+  - port: 
+      number: 80
+      name: http
+      protocol: HTTP
+#  - port: 
+#      number: 443
+#      name: https
+#      protocol: HTTPS
+    hosts:
+    - v3.lcl.time-keeper.watch
+    - bank.v3.lcl.time-keeper.watch

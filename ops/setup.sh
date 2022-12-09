@@ -5,7 +5,7 @@
 #kubectl delete namespace istio-system 
 #kubectl delete namespace ops-argocd
 #kubectl delete namespace app-time-now
-#kubectl delete namespace app-bank-of-anthos
+kubectl delete namespace app-bank-of-anthos
 
 # GKE AutoNEG
 kubectl apply -f autoneg/install-manifests.yaml || true

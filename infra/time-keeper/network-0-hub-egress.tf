@@ -12,12 +12,12 @@ resource "google_compute_health_check" "autohealing" {
   name                = "${var.prefix}-${var.demo_name}-${var.env}-autohealing-hc"
   check_interval_sec  = 5
   timeout_sec         = 5
-  healthy_threshold   = 2
-  unhealthy_threshold = 10 # 50 seconds
+  healthy_threshold   = 1
+  unhealthy_threshold = 3 # 50 seconds
 
   http_health_check {
-    request_path = "/healthz"
-    port         = "8080"
+    request_path = "/"
+    port         = "80"
   }
 }
 
@@ -25,7 +25,7 @@ resource "google_compute_instance_group_manager" "instance_group_manager" {
   name               = "${var.prefix}-${var.demo_name}-${var.env}-mig-egress-squid"
   project = google_project.project.project_id
   version {
-    instance_template  = google_compute_instance_template.egress-squid.id
+    instance_template  = google_compute_instance_template.egress-squid.self_link
   }
   base_instance_name = "${var.prefix}-${var.demo_name}-${var.env}-vm-egress-squid"
   zone               = "europe-west6-a"
@@ -35,7 +35,7 @@ resource "google_compute_instance_group_manager" "instance_group_manager" {
 resource "google_service_account" "sc-mig-egress-squid" {
   project = google_project.project.project_id
   account_id   = "${var.prefix}-${var.demo_name}-${var.env}-sc-mig-egress-squid"
-  display_name = "Service Account"
+  display_name = "Service Account - Egress MIG Squid Proxy"
 }
 
 resource "google_compute_instance_template" "egress-squid" {
@@ -86,10 +86,19 @@ resource "google_compute_instance_template" "egress-squid" {
     subnetwork    = google_compute_subnetwork.hub-subnet-egress.name
   }
 
-
   service_account {
     email  = google_service_account.sc-mig-egress-squid.email
     scopes = ["cloud-platform"]
+  }
+
+  metadata = {
+    enable-oslogin = "TRUE"
+  }
+
+  metadata_startup_script = file("./squid_startup.sh")
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -140,7 +149,7 @@ resource "google_compute_forwarding_rule" "google_compute_forwarding_rule" {
 # backend service
 resource "google_compute_region_backend_service" "egress-squid" {
   project = google_project.project.project_id
-  name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb-backend-subnet"
+  name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb"
   region                = "europe-west6"
   protocol              = "TCP"
   load_balancing_scheme = "INTERNAL"

@@ -16,17 +16,17 @@
 
 
 // Create the firewall rules to allow nodes to communicate with the control plane
-resource "google_compute_firewall" "gke-lb-health-checks" {
+resource "google_compute_firewall" "gke-lb-health-checks-hub" {
   project = google_project.project.project_id
-  network = module.vpc-spoke-1.self_link
-  name    = "${var.prefix}-${var.demo_name}-${var.env}-gke-lb-hc"
+  network = module.vpc-hub.self_link
+  name    = "${var.prefix}-${var.demo_name}-${var.env}-gke-lb-hc-hub"
 
   priority  = "200"
   direction = "INGRESS"
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["80", "8080", "443", "10256"]
   }
 
   source_ranges = [
@@ -39,6 +39,45 @@ resource "google_compute_firewall" "gke-lb-health-checks" {
     google_service_account.gke_egress_service_account.email,
     google_service_account.gke_worker_service_account.email,
     google_service_account.config_connector_service_account.email,
+    google_service_account.sc-mig-egress-squid.email,
   ]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
+
+
+// Create the firewall rules to allow nodes to communicate with the control plane
+resource "google_compute_firewall" "gke-lb-health-checks-spoke" {
+  project = google_project.project.project_id
+  network = module.vpc-spoke-1.self_link
+  name    = "${var.prefix}-${var.demo_name}-${var.env}-gke-lb-hc-spoke"
+
+  priority  = "200"
+  direction = "INGRESS"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "8080", "443", "10256"]
+  }
+
+  source_ranges = [
+    "35.191.0.0/16",
+    "130.211.0.0/22",
+  ]
+
+  target_service_accounts = [
+    google_service_account.gke_service_account.email,
+    google_service_account.gke_egress_service_account.email,
+    google_service_account.gke_worker_service_account.email,
+    google_service_account.config_connector_service_account.email,
+    google_service_account.sc-mig-egress-squid.email,
+  ]
+  
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
 }
 
