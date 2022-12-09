@@ -19,11 +19,10 @@ resource "random_integer" "np_int_salt" {
   max = 9999
 }
 
+// This Node Pool is Firewall Blocked for EGRESS and Allows ONLY INGRESS traffic.
 resource "google_container_node_pool" "np-internal" {
   project = var.project_id
-  //name    = "${local.cluster_name}-np-wpl-1"
   name = "np-${local.region}-wpl-${random_integer.np_int_salt.result}"
-  //name_prefix = "${var.prefix}-${var.demo_name}-${var.env}-np-ext"
   location = local.region
   cluster  = google_container_cluster.gke.name
 

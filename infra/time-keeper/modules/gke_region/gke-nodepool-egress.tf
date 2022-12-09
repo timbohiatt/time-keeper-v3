@@ -21,9 +21,7 @@ resource "random_integer" "np_ext_salt" {
 
 resource "google_container_node_pool" "np-external" {
   project = var.project_id
-  //name    = "${local.cluster_name}-np-ext"
   name = "np-${local.region}-ext-${random_integer.np_ext_salt.result}"
-  //name_prefix = "${var.prefix}-${var.demo_name}-${var.env}-np-ext"
   location = local.region
   cluster  = google_container_cluster.gke.name
 
@@ -44,6 +42,15 @@ resource "google_container_node_pool" "np-external" {
       private-pool = "true",
       type         = "egress"
     }
+
+    // Prevents GKE from Scheduling Workloads on this node pool unless they have the key value pair in the Taint. 
+    // This Node Pool is Firewall Blocked for INGRESS and Allows ONLY EGRESS traffic.
+    taint = [{
+      key    = "dedicated"
+      value  = "gateway"
+      effect = "NO_SCHEDULE"
+    }]
+
 
     shielded_instance_config {
       enable_secure_boot          = "true"

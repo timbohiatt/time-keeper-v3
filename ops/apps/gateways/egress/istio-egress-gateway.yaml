@@ -5,7 +5,7 @@ metadata:
   namespace: istio-system
 spec:
   selector:
-    istio: egressgateway
+    istio: egress
   servers:
   - port:
       number: 80
