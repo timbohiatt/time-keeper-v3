@@ -53,7 +53,7 @@ resource "google_compute_instance_template" "egress-squid" {
   }
 
   instance_description = "Egress Squid Proxy in Hub Network in ${var.region}"
-  machine_type         = "n2-standard-8"
+  machine_type         = "e2-standard-8"
   can_ip_forward       = true
 
   scheduling { 
@@ -119,7 +119,7 @@ data "google_compute_image" "egress-squid" {
 resource "google_compute_resource_policy" "daily_backup" {
   project = google_project.project.project_id
   name   = "${var.prefix}-${var.demo_name}-${var.env}-egress-squid-bkp-daily"
-  region = "europe-west6"
+  region = "${var.region}"
   snapshot_schedule_policy {
     schedule {
       daily_schedule {
@@ -137,7 +137,7 @@ resource "google_compute_forwarding_rule" "google_compute_forwarding_rule" {
   project = google_project.project.project_id
   name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb-forwarding-rule"
   backend_service       = google_compute_region_backend_service.egress-squid.id
-  region                = "europe-west6"
+  region                = "${var.region}"
   ip_protocol           = "TCP"
   load_balancing_scheme = "INTERNAL"
   all_ports             = true
@@ -150,7 +150,7 @@ resource "google_compute_forwarding_rule" "google_compute_forwarding_rule" {
 resource "google_compute_region_backend_service" "egress-squid" {
   project = google_project.project.project_id
   name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb"
-  region                = "europe-west6"
+  region                = "${var.region}"
   protocol              = "TCP"
   load_balancing_scheme = "INTERNAL"
   health_checks         = [google_compute_health_check.autohealing.id]

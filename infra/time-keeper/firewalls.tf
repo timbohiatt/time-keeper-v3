@@ -26,7 +26,7 @@ resource "google_compute_firewall" "gke-lb-health-checks-hub" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "8080", "443", "10256"]
+    ports    = ["80", "8080", "443", "10256", "15021"]
   }
 
   source_ranges = [
@@ -60,7 +60,7 @@ resource "google_compute_firewall" "gke-lb-health-checks-spoke" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "8080", "443", "10256"]
+    ports    = ["80", "8080", "443", "10256", "15021"]
   }
 
   source_ranges = [
@@ -75,7 +75,7 @@ resource "google_compute_firewall" "gke-lb-health-checks-spoke" {
     google_service_account.config_connector_service_account.email,
     google_service_account.sc-mig-egress-squid.email,
   ]
-  
+
   log_config {
     metadata = "INCLUDE_ALL_METADATA"
   }

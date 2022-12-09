@@ -81,8 +81,8 @@ module "load_balancer" {
         timeout_sec         = 15
         healthy_threshold   = 4
         unhealthy_threshold = 4
-        request_path        = "/"
-        port                = 8080
+        request_path        = "/healthz/ready"
+        port                = 15021
         host                = null
         logging             = true
       }
