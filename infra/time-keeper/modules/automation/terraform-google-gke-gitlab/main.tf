@@ -92,31 +92,33 @@ resource "google_project_iam_member" "project" {
 }
 
 // Networking
-resource "google_compute_network" "gitlab" {
+/*resource "google_compute_network" "gitlab" {
   name                    = "gitlab"
   project                 = module.project_services.project_id
   auto_create_subnetworks = false
-}
+}*/
+
+
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "gitlab"
+  name          = "automation"
   ip_cidr_range = var.gitlab_nodes_subnet_cidr
   region        = var.region
-  network       = google_compute_network.gitlab.self_link
+  network       = var.network_self_link
 
   secondary_ip_range {
-    range_name    = "gitlab-cluster-pod-cidr"
+    range_name    = "automation-cluster-pod-cidr"
     ip_cidr_range = var.gitlab_pods_subnet_cidr
   }
 
   secondary_ip_range {
-    range_name    = "gitlab-cluster-service-cidr"
+    range_name    = "automation-cluster-service-cidr"
     ip_cidr_range = var.gitlab_services_subnet_cidr
   }
 }
 
 resource "google_compute_address" "gitlab" {
-  name         = "gitlab"
+  name         = "automation"
   region       = var.region
   address_type = "EXTERNAL"
   description  = "Gitlab Ingress IP"
@@ -128,17 +130,17 @@ resource "google_compute_address" "gitlab" {
 resource "google_compute_global_address" "gitlab_sql" {
   provider      = google-beta
   project       = var.project_id
-  name          = "gitlab-sql"
+  name          = "automation-sql"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  network       = google_compute_network.gitlab.self_link
+  network       = var.network_self_link
   address       = "10.1.0.0"
   prefix_length = 16
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
   provider                = google-beta
-  network                 = google_compute_network.gitlab.self_link
+  network                 = var.network_self_link
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.gitlab_sql.name]
   depends_on              = [module.project_services.project_id]
@@ -157,7 +159,7 @@ resource "google_sql_database_instance" "gitlab_db" {
 
     ip_configuration {
       ipv4_enabled    = "false"
-      private_network = google_compute_network.gitlab.self_link
+      private_network = var.network_self_link
     }
   }
 }
@@ -186,7 +188,7 @@ resource "google_redis_instance" "gitlab" {
   tier               = "STANDARD_HA"
   memory_size_gb     = 5
   region             = var.region
-  authorized_network = google_compute_network.gitlab.self_link
+  authorized_network = var.network_self_link
 
   depends_on = [module.project_services.project_id]
 
@@ -258,10 +260,10 @@ module "gke" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  network           = google_compute_network.gitlab.name
-  subnetwork        = google_compute_subnetwork.subnetwork.name
-  ip_range_pods     = "gitlab-cluster-pod-cidr"
-  ip_range_services = "gitlab-cluster-service-cidr"
+  network           = var.network_name
+  subnetwork        = google_compute_subnetwork.subnetwork.name 
+  ip_range_pods     = "automation-cluster-pod-cidr"
+  ip_range_services = "automation-cluster-service-cidr"
 
   issue_client_certificate = true
 

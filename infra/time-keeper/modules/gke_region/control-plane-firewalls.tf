@@ -39,7 +39,7 @@ resource "google_compute_firewall" "egress-allow-gke-node" {
     local.service_account
   ]
 }
- 
+
 resource "google_compute_firewall" "ingress-allow-gke-node" {
   project = var.project_id
   network = var.vpc_network_self_link

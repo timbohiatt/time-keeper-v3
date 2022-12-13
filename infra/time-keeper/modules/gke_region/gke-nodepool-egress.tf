@@ -20,8 +20,8 @@ resource "random_integer" "np_ext_salt" {
 }
 
 resource "google_container_node_pool" "np-external" {
-  project = var.project_id
-  name = "np-${local.region}-ext-${random_integer.np_ext_salt.result}"
+  project  = var.project_id
+  name     = "np-${local.region}-ext-${random_integer.np_ext_salt.result}"
   location = local.region
   cluster  = google_container_cluster.gke.name
 

@@ -51,27 +51,27 @@ module "hub-to-spoke-1-peering" {
 
 
 module "nat-spoke" {
- for_each = {
-   for k, v in local.gke_clusters : k => v
-   if v.enabled
- }
- source         = "./modules/net-cloudnat"
- project_id     = google_project.project.project_id
- region         = try(each.value.region, null)
- name           = "${var.prefix}-${var.demo_name}-${var.env}-spoke-nat-gw-${each.value.region}"
- router_name    = "${var.prefix}-${var.demo_name}-${var.env}-spoke-nat-rtr-${each.value.region}"
- router_network = module.vpc-spoke-1.self_link
+  for_each = {
+    for k, v in local.gke_clusters : k => v
+    if v.enabled
+  }
+  source         = "./modules/net-cloudnat"
+  project_id     = google_project.project.project_id
+  region         = try(each.value.region, null)
+  name           = "${var.prefix}-${var.demo_name}-${var.env}-spoke-nat-gw-${each.value.region}"
+  router_name    = "${var.prefix}-${var.demo_name}-${var.env}-spoke-nat-rtr-${each.value.region}"
+  router_network = module.vpc-spoke-1.self_link
 }
 
 
- resource "google_compute_route" "route-ilb" {
-   project = google_project.project.project_id
-   name         = "route-egress-spoke-to-egres-nat"
-   dest_range   = "0.0.0.0/0"
-   network      = module.vpc-spoke-1.self_link
-   next_hop_gateway = "default-internet-gateway"
-   //next_hop_ilb = module.squid-ilb[0].forwarding_rule_id
-   //next_hop_ilb = google_compute_forwarding_rule.google_compute_forwarding_rule.id
-   priority     = 0
-   description = "Default route to the Internet via Spoke NAT."
- }
+resource "google_compute_route" "route-ilb" {
+  project          = google_project.project.project_id
+  name             = "route-egress-spoke-to-egres-nat"
+  dest_range       = "0.0.0.0/0"
+  network          = module.vpc-spoke-1.self_link
+  next_hop_gateway = "default-internet-gateway"
+  //next_hop_ilb = module.squid-ilb[0].forwarding_rule_id
+  //next_hop_ilb = google_compute_forwarding_rule.google_compute_forwarding_rule.id
+  priority    = 0
+  description = "Default route to the Internet via Spoke NAT."
+}

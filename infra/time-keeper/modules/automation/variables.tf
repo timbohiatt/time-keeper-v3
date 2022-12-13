@@ -33,3 +33,15 @@ variable "region" {
 variable "demo_name" {
   type = string
 }
+
+variable "project_id" {
+  type = string
+}
+
+variable "network_self_link" {
+  description = "Network in which to install GitLab GKE Cluster and Elements"
+}
+
+variable "network_name" {
+  description = "Network Name in which to install GitLab GKE Cluster and Elements"
+}

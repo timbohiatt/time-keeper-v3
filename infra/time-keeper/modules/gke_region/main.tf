@@ -109,7 +109,7 @@ resource "google_container_cluster" "gke" {
   cost_management_config {
     enabled = local.enable_cost_management_config
   }
-  
+
 
   master_auth {
     // Disable login auth to the cluster
@@ -182,7 +182,7 @@ resource "google_container_cluster" "gke" {
 
     network_policy_config {
       disabled = false
-    } 
+    }
   }
 
   //resource_labels = var.cluster_labels

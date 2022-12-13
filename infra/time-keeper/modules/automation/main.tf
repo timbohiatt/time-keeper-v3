@@ -34,16 +34,17 @@ resource "random_integer" "salt" {
   max = 9999
 }
 
+/*
 resource "google_project" "project" {
   folder_id           = var.folder_id
   name                = "${var.prefix}-${var.demo_name}"
   project_id          = "${var.prefix}-${var.demo_name}-${random_integer.salt.result}"
   billing_account     = var.billing_account
   auto_create_network = false
-}
+}*/
 
-resource "google_project_service" "project_apis" {
-  project = google_project.project.project_id
+resource "google_project_service" "automation_project_apis" {
+  project = var.project_id
   count   = length(local.services)
   service = element(local.services, count.index)
 
@@ -52,13 +53,15 @@ resource "google_project_service" "project_apis" {
 }
 
 module "gke-gitlab" {
-  source                     = "./terraform-google-gke-gitlab"
-  project_id                 = google_project.project.project_id
-  certmanager_email          = "no-reply@${google_project.project.project_id}.example.com"
-  gitlab_deletion_protection = false
-  gitlab_db_random_prefix    = true
-  helm_chart_version         = "6.6.0"
-  runner_service_account_name= google_service_account.gitlab_service_account.email
+  source                      = "./terraform-google-gke-gitlab"
+  project_id                  = var.project_id
+  certmanager_email           = "no-reply@${var.project_id}.example.com"
+  gitlab_deletion_protection  = false
+  gitlab_db_random_prefix     = true
+  helm_chart_version          = "6.6.0"
+  network_self_link           = var.network_self_link
+  network_name                = var.network_name
+  runner_service_account_name = google_service_account.gitlab_service_account.email
 }
 
 
@@ -69,9 +72,3 @@ resource "google_billing_account_iam_binding" "binding" {
     google_service_account.gitlab_service_account.member
   ]
 }
-
-
-##
-# Service Account Needs:
-# ProjectCreator @ Folder Level
-#

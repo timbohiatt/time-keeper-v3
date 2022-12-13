@@ -12,8 +12,12 @@ locals {
 }
 
 
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
 resource "google_iam_workload_identity_pool" "gitlab_identity_pool" {
-  project                   = google_project.project.project_id
+  project                   = var.project_id
   workload_identity_pool_id = "${var.prefix}-${var.demo_name}"
   display_name              = "Gitlab Identity Pool"
   description               = "Gitlab Identity Pool for automated CICD"
@@ -21,7 +25,7 @@ resource "google_iam_workload_identity_pool" "gitlab_identity_pool" {
 }
 
 resource "google_iam_workload_identity_pool_provider" "gitlab_identity_pool_provider" {
-  project                            = google_project.project.project_id
+  project                            = var.project_id
   workload_identity_pool_id          = google_iam_workload_identity_pool.gitlab_identity_pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "${var.prefix}-${var.demo_name}-gitlab-oidc"
   display_name                       = "Gitlab OIDC Provider"
@@ -52,7 +56,7 @@ resource "google_iam_workload_identity_pool_provider" "gitlab_identity_pool_prov
 }
 
 resource "google_service_account" "gitlab_service_account" {
-  project      = google_project.project.project_id
+  project      = var.project_id
   account_id   = "${var.prefix}-${var.demo_name}-gitlab"
   display_name = "${var.prefix}-${var.demo_name}-gitlab"
   description  = "Gitlab CI/CD Automation service account."
@@ -71,9 +75,9 @@ resource "google_service_account_iam_binding" "gitlab_service_account_iam_bindin
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    "serviceAccount:${google_project.project.project_id}.svc.id.goog[default/gitlab-gitlab-runner]",
-    "serviceAccount:${google_project.project.project_id}.svc.id.goog[default/default]",
-    "principalSet://iam.googleapis.com/projects/${google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gitlab_identity_pool.workload_identity_pool_id}/*",
+    "serviceAccount:${var.project_id}.svc.id.goog[default/gitlab-gitlab-runner]",
+    "serviceAccount:${var.project_id}.svc.id.goog[default/default]",
+    "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gitlab_identity_pool.workload_identity_pool_id}/*",
   ]
 }
 

@@ -1,7 +1,7 @@
 locals {
   SquidServiceAccountIAMRoles = [
-   "roles/logging.logWriter",
-      "roles/monitoring.metricWriter",
+    "roles/logging.logWriter",
+    "roles/monitoring.metricWriter",
   ]
   squid_address = (
     var.mig
@@ -25,7 +25,7 @@ variable "cidrs" {
   default = {
     apps  = "10.128.16.0/21"
     proxy = "10.0.1.0/28"
-    jump = "10.128.40.0/21"
+    jump  = "10.128.40.0/21"
   }
 }
 
@@ -44,7 +44,7 @@ variable "nat_logging" {
 
 
 resource "google_compute_subnetwork" "hub-subnet-egress" {
-  project = google_project.project.project_id
+  project                  = google_project.project.project_id
   name                     = "${var.prefix}-${var.demo_name}-${var.env}-hub-egress-${var.region}"
   ip_cidr_range            = "10.128.16.0/21"
   network                  = module.vpc-hub.self_link
@@ -110,7 +110,7 @@ module "private-dns" {
 
 
 resource "google_service_account" "service-account-squid" {
-  project      = google_project.project.project_id
+  project = google_project.project.project_id
   #account_id   = "${var.prefix}-${var.demo_name}-${var.env}-svc-squid"
   #display_name = "${var.prefix}-${var.demo_name}-${var.env}-svc-squid"
   account_id   = "lol-svc-squid"
@@ -161,9 +161,9 @@ module "squid-vm" {
   service_account        = google_service_account.service-account-squid.email
   service_account_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   metadata = {
-    user-data = module.cos-squid.cloud_config,
+    user-data              = module.cos-squid.cloud_config,
     google-logging-enabled = true,
-    enable-oslogin = true
+    enable-oslogin         = true
   }
 }
 

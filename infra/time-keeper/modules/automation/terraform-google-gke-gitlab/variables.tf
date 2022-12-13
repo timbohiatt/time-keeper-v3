@@ -72,18 +72,29 @@ variable "region" {
   description = "GCP region to deploy resources to"
 }
 
+
+
+variable "network_self_link" {
+  description = "Network in which to install GitLab GKE Cluster and Elements"
+}
+
+variable "network_name" {
+  description = "Network Name in which to install GitLab GKE Cluster and Elements"
+}
+
+
 variable "gitlab_nodes_subnet_cidr" {
-  default     = "10.0.0.0/16"
+  default     = "10.128.64.0/21"
   description = "Cidr range to use for gitlab GKE nodes subnet"
 }
 
 variable "gitlab_pods_subnet_cidr" {
-  default     = "10.3.0.0/16"
+  default     = "10.128.72.0/21"
   description = "Cidr range to use for gitlab GKE pods subnet"
 }
 
 variable "gitlab_services_subnet_cidr" {
-  default     = "10.2.0.0/16"
+  default     = "10.128.80.0/21"
   description = "Cidr range to use for gitlab GKE services subnet"
 }
 
@@ -101,6 +112,6 @@ variable "allow_force_destroy" {
 
 variable "runner_service_account_name" {
   type        = string
-  default = "default"
+  default     = "default"
   description = "Allows full cleanup of resources by disabling any deletion safe guards"
 }

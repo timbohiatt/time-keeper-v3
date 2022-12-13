@@ -18,9 +18,9 @@
 
 
 module "vpc-hub" {
-  source     = "./modules/net-vpc"
-  project_id = google_project.project.project_id
-  name       = "${var.prefix}-${var.demo_name}-${var.env}-gbl-hub"
+  source                          = "./modules/net-vpc"
+  project_id                      = google_project.project.project_id
+  name                            = "${var.prefix}-${var.demo_name}-${var.env}-gbl-hub"
   delete_default_routes_on_create = true
   /*subnets = [
     {
