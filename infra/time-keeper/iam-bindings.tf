@@ -32,12 +32,12 @@ locals {
   ]
 }
 
-
+/*
 resource "google_project_iam_member" "autoneg_workload_identity" {
   project = google_project.project.project_id
   role    = "roles/iam.workloadIdentityUser"
   member  = "serviceAccount:${google_project.project.project_id}.svc.id.goog[autoneg-system/autoneg]"
-}
+}*/
 
 resource "google_project_iam_member" "config_connector_service_account" {
   count   = length(local.CCServiceAccountIAMRoles)

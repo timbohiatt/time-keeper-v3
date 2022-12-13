@@ -1,3 +1,48 @@
+locals {
+  SquidServiceAccountIAMRoles = [
+   "roles/logging.logWriter",
+      "roles/monitoring.metricWriter",
+  ]
+  squid_address = (
+    var.mig
+    ? module.squid-ilb.0.forwarding_rule_address
+    : module.squid-vm.internal_ip
+  )
+}
+
+variable "allowed_domains" {
+  description = "List of domains allowed by the squid proxy."
+  type        = list(string)
+  default = [
+    ".google.com",
+    ".github.com"
+  ]
+}
+
+variable "cidrs" {
+  description = "CIDR ranges for subnets."
+  type        = map(string)
+  default = {
+    apps  = "10.128.16.0/21"
+    proxy = "10.0.1.0/28"
+    jump = "10.128.40.0/21"
+  }
+}
+
+variable "mig" {
+  description = "Enables the creation of an autoscaling managed instance group of squid instances."
+  type        = bool
+  default     = true
+}
+
+variable "nat_logging" {
+  description = "Enables Cloud NAT logging if not null, value is one of 'ERRORS_ONLY', 'TRANSLATIONS_ONLY', 'ALL'."
+  type        = string
+  default     = "ALL"
+}
+
+
+
 resource "google_compute_subnetwork" "hub-subnet-egress" {
   project = google_project.project.project_id
   name                     = "${var.prefix}-${var.demo_name}-${var.env}-hub-egress-${var.region}"
@@ -7,197 +52,248 @@ resource "google_compute_subnetwork" "hub-subnet-egress" {
   private_ip_google_access = true
 }
 
-resource "google_compute_health_check" "autohealing" {
-  project = google_project.project.project_id
-  name                = "${var.prefix}-${var.demo_name}-${var.env}-autohealing-hc"
-  check_interval_sec  = 5
-  timeout_sec         = 5
-  healthy_threshold   = 1
-  unhealthy_threshold = 3 # 50 seconds
-
-  http_health_check {
-    request_path = "/"
-    port         = "80"
-  }
-}
-
-resource "google_compute_instance_group_manager" "instance_group_manager" {
-  name               = "${var.prefix}-${var.demo_name}-${var.env}-mig-egress-squid"
-  project = google_project.project.project_id
-  version {
-    instance_template  = google_compute_instance_template.egress-squid.self_link
-  }
-  base_instance_name = "${var.prefix}-${var.demo_name}-${var.env}-vm-egress-squid"
-  zone               = "europe-west6-a"
-  target_size        = "3"
-}
-
-resource "google_service_account" "sc-mig-egress-squid" {
-  project = google_project.project.project_id
-  account_id   = "${var.prefix}-${var.demo_name}-${var.env}-sc-mig-egress-squid"
-  display_name = "Service Account - Egress MIG Squid Proxy"
-}
-
-resource "google_compute_instance_template" "egress-squid" {
-  project = google_project.project.project_id
-  region = var.region
-  name_prefix  = "${var.prefix}-${var.demo_name}-${var.env}-mig-egress-squid"
-  description = "Egress Squid Proxy in Hub Network in ${var.region}."
-  tags = ["${var.prefix}-${var.demo_name}-${var.env}-egress-squid"]
-  labels = {
-    environment = "${var.env}"
-    demo = "${var.demo_name}"
-    traffic = "egress"
-    type = "squid"
-    network = "hub"
-  }
-
-  instance_description = "Egress Squid Proxy in Hub Network in ${var.region}"
-  machine_type         = "e2-standard-8"
-  can_ip_forward       = true
-
-  scheduling { 
-    automatic_restart   = true 
-    on_host_maintenance = "MIGRATE"
-  } 
-
-  // Create a new boot disk from an image
-  disk {
-    source_image      = "debian-cloud/debian-11"
-    auto_delete       = true
-    boot              = true
-    // backup the disk every day
-    resource_policies = [google_compute_resource_policy.daily_backup.id]
-  }
-
-  // Use an existing disk resource
-  disk {
-    // Instance Templates reference disks by name, not self link
-    //source_image      = google_compute_disk.egress-squid.name
-    disk_type = "pd-ssd"
-    disk_size_gb = "100"
-    auto_delete = false
-    boot        = false
-  }
-
-  network_interface {
-    // network = module.vpc-hub.self_link
-    subnetwork_project = google_project.project.project_id
-    subnetwork    = google_compute_subnetwork.hub-subnet-egress.name
-  }
-
-  service_account {
-    email  = google_service_account.sc-mig-egress-squid.email
-    scopes = ["cloud-platform"]
-  }
-
-  metadata = {
-    enable-oslogin = "TRUE"
-  }
-
-  metadata_startup_script = file("./squid_startup.sh")
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-data "google_compute_image" "egress-squid" {
-  family  = "debian-11"
-  project = "debian-cloud"
-}
-
-/*resource "google_compute_disk" "egress-squid" {
-  project = google_project.project.project_id
-  name  = "${var.prefix}-${var.demo_name}-${var.env}-egress-squid-disk"
-  image = data.google_compute_image.egress-squid.self_link
-  size  = 50
-  type  = "pd-ssd"
-  zone  = "europe-west6-a"
-}*/
-
-resource "google_compute_resource_policy" "daily_backup" {
-  project = google_project.project.project_id
-  name   = "${var.prefix}-${var.demo_name}-${var.env}-egress-squid-bkp-daily"
-  region = "${var.region}"
-  snapshot_schedule_policy {
-    schedule {
-      daily_schedule {
-        days_in_cycle = 1
-        start_time    = "04:00"
-      }
+module "firewall" {
+  source     = "./modules/net-vpc-firewall-squid"
+  project_id = google_project.project.project_id
+  network    = module.vpc-hub.name
+  ingress_rules = {
+    allow-ingress-squid = {
+      description = "Allow squid ingress traffic"
+      source_ranges = [
+        var.cidrs.apps, "35.191.0.0/16", "130.211.0.0/22", "0.0.0.0/0"
+      ]
+      targets              = [google_service_account.service-account-squid.email]
+      use_service_accounts = true
+      rules = [{
+        protocol = "tcp"
+        ports    = [3128]
+      }]
     }
   }
 }
 
-
-
-# forwarding rule
-resource "google_compute_forwarding_rule" "google_compute_forwarding_rule" {
-  project = google_project.project.project_id
-  name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb-forwarding-rule"
-  backend_service       = google_compute_region_backend_service.egress-squid.id
-  region                = "${var.region}"
-  ip_protocol           = "TCP"
-  load_balancing_scheme = "INTERNAL"
-  all_ports             = true
-  allow_global_access   = true
-  network               = module.vpc-hub.self_link
-  subnetwork            = google_compute_subnetwork.hub-subnet-egress.id
+module "nat" {
+  source                = "./modules/net-cloudnat"
+  project_id            = google_project.project.project_id
+  region                = var.region
+  name                  = "${var.prefix}-${var.demo_name}-${var.env}-hub-nat-gw-${var.region}"
+  router_network        = module.vpc-hub.name
+  config_source_subnets = "LIST_OF_SUBNETWORKS"
+  # 64512/11 = 5864 . 11 is the number of usable IPs in the proxy subnet
+  config_min_ports_per_vm = 5864
+  subnetworks = [
+    {
+      self_link            = google_compute_subnetwork.hub-subnet-egress.self_link
+      config_source_ranges = ["ALL_IP_RANGES"]
+      secondary_ranges     = null
+    }
+  ]
+  logging_filter = var.nat_logging
 }
 
-# backend service
-resource "google_compute_region_backend_service" "egress-squid" {
-  project = google_project.project.project_id
-  name                  = "${var.prefix}-${var.demo_name}-${var.env}-egress-l4-ilb"
-  region                = "${var.region}"
-  protocol              = "TCP"
-  load_balancing_scheme = "INTERNAL"
-  health_checks         = [google_compute_health_check.autohealing.id]
-  backend {
-    group          = google_compute_instance_group_manager.instance_group_manager.instance_group
-    balancing_mode = "CONNECTION"
+module "private-dns" {
+  source          = "./modules/dns"
+  project_id      = google_project.project.project_id
+  type            = "private"
+  name            = "${var.prefix}-${var.demo_name}-${var.env}-squid-internal"
+  domain          = "internal."
+  client_networks = [module.vpc-hub.self_link]
+  recordsets = {
+    "A squid"     = { ttl = 60, records = [local.squid_address] }
+    "CNAME proxy" = { ttl = 3600, records = ["squid.internal."] }
   }
 }
 
+###############################################################################
+#                               Squid resources                               #
+###############################################################################
 
 
-/*resource "google_compute_firewall" "vm-ssh" {
-  name    = "${var.network_name}-ssh"
-  network = module.vpc-hub.self_link
+resource "google_service_account" "service-account-squid" {
+  project      = google_project.project.project_id
+  #account_id   = "${var.prefix}-${var.demo_name}-${var.env}-svc-squid"
+  #display_name = "${var.prefix}-${var.demo_name}-${var.env}-svc-squid"
+  account_id   = "lol-svc-squid"
+  display_name = "lol-svc-squid"
+}
+
+resource "google_project_iam_member" "squid_service_account" {
+  count   = length(local.SquidServiceAccountIAMRoles)
+  project = google_project.project.project_id
+  role    = element(local.SquidServiceAccountIAMRoles, count.index)
+  member  = "serviceAccount:${google_service_account.service-account-squid.email}"
+}
+
+
+
+# module "service-account-squid" {
+#   source     = "./modules/iam-service-account"
+#   project_id = google_project.project.project_id
+#   name       = "${var.prefix}-${var.demo_name}-${var.env}-svc-squid"
+#   iam_project_roles = {
+#     (google_project.project.project_id) = [
+#       "roles/logging.logWriter",
+#       "roles/monitoring.metricWriter",
+#     ]
+#   }
+# }
+
+module "cos-squid" {
+  source  = "./modules/cloud-config-container/squid"
+  allow   = var.allowed_domains
+  clients = [var.cidrs.apps, var.cidrs.jump, "0.0.0.0/0"]
+}
+
+module "squid-vm" {
+  source          = "./modules/compute-vm"
+  project_id      = google_project.project.project_id
+  zone            = "${var.region}-b"
+  name            = "${var.prefix}-${var.demo_name}-${var.env}-squid-vm"
+  instance_type   = "e2-medium"
+  create_template = var.mig
+  network_interfaces = [{
+    network    = module.vpc-hub.self_link
+    subnetwork = google_compute_subnetwork.hub-subnet-egress.self_link
+  }]
+  boot_disk = {
+    image = "cos-cloud/cos-stable"
+  }
+  service_account        = google_service_account.service-account-squid.email
+  service_account_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  metadata = {
+    user-data = module.cos-squid.cloud_config,
+    google-logging-enabled = true,
+    enable-oslogin = true
+  }
+}
+
+resource "google_compute_firewall" "jump-ssh-allow-hub" {
+  project   = google_project.project.project_id
+  network   = module.vpc-hub.self_link
+  direction = "INGRESS"
 
   allow {
     protocol = "tcp"
-    ports    = ["22"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["${var.network_name}-ssh"]
-}*/
+  source_ranges = ["35.235.240.0/20"]
+  name          = "${var.prefix}-${var.demo_name}-${var.env}-hub-iap"
+  priority      = "100"
+}
 
-// Since we aren't using the NAT on the test VM, add separate firewall rule for the squid proxy.
-/*resource "google_compute_firewall" "nat-squid" {
-  name    = "${var.prefix}-${var.demo_name}-${var.env}-squid"
-  network = google_compute_subnetwork.hub-subnet-egress.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["3128"]
+module "squid-mig" {
+  count             = var.mig ? 1 : 0
+  source            = "./modules/compute-mig"
+  project_id        = google_project.project.project_id
+  location          = "${var.region}-b"
+  name              = "${var.prefix}-${var.demo_name}-${var.env}-squid-mig"
+  instance_template = module.squid-vm.template.self_link
+  target_size       = 1
+  auto_healing_policies = {
+    initial_delay_sec = 60
   }
-
-  source_tags = ["${var.network_name}-squid"]
-  target_tags = ["inst-${module.nat.routing_tag_zonal}"]
-}*/
-
-/*
-output "nat-host" {
-  value = "${module.nat.instance}"
+  autoscaler_config = {
+    max_replicas    = 10
+    min_replicas    = 1
+    cooldown_period = 30
+    scaling_signals = {
+      cpu_utilization = {
+        target = 0.65
+      }
+    }
+  }
+  health_check_config = {
+    enable_logging = true
+    tcp = {
+      port = 3128
+    }
+  }
 }
 
-output "nat-ip" {
-  value = "${module.nat.external_ip}"
+module "squid-ilb" {
+  count         = var.mig ? 1 : 0
+  source        = "./modules/net-ilb"
+  project_id    = google_project.project.project_id
+  region        = var.region
+  name          = "${var.prefix}-${var.demo_name}-${var.env}-squid-ilb"
+  ports         = [3128]
+  service_label = "squid-ilb"
+  vpc_config = {
+    network    = module.vpc-hub.self_link
+    subnetwork = google_compute_subnetwork.hub-subnet-egress.self_link
+  }
+  backends = [{
+    group = module.squid-mig.0.group_manager.instance_group
+  }]
+  health_check_config = {
+    enable_logging = true
+    tcp = {
+      port = 3128
+    }
+  }
 }
 
-output "vm-host" {
-  value = "${google_compute_instance.vm.self_link}"
+###############################################################################
+#                               Service project                               #
+###############################################################################
+
+# module "folder-apps" {
+#   source = "./modules/folder"
+#   parent = var.root_node
+#   name   = "apps"
+#   org_policies = {
+#     # prevent VMs with public IPs in the apps folder
+#     "constraints/compute.vmExternalIpAccess" = {
+#       deny = { all = true }
+#     }
+#   }
+# }
+
+# module "project-app" {
+#   source          = "./modules/project"
+#   billing_account = var.billing_account
+#   name            = "app1"
+#   parent          = module.folder-apps.id
+#   prefix          = var.prefix
+#   services        = ["compute.googleapis.com"]
+#   shared_vpc_service_config = {
+#     host_project = module.project-host.project_id
+#     service_identity_iam = {
+#       "roles/compute.networkUser" = ["cloudservices"]
+#     }
+#   }
+# }
+
+/*module "test-vm" {
+  source        = "./modules/compute-vm"
+  project_id    = google_project.project.project_id
+  zone          = "${var.region}-b"
+  name          = "test-vm-tim"
+  instance_type = "e2-micro"
+  tags          = ["ssh"]
+  network_interfaces = [{
+    network    = module.vpc-hub.self_link
+    subnetwork = google_compute_subnetwork.hub-subnet-egress.self_link
+    nat        = false
+    addresses  = null
+  }]
+  boot_disk = {
+    image = "debian-cloud/debian-10"
+    type  = "pd-standard"
+    size  = 10
+  }
+  service_account_create = true
 }*/
+
+
+# // Route Spoke Internet Traffic to Hub ILB for SQUID Proxy
+# resource "google_compute_route" "route-ilb" {
+#   project = google_project.project.project_id
+#   name         = "route-egress-ilb-to-hub-nat"
+#   dest_range   = "0.0.0.0/0"
+#   network      = module.vpc-spoke-1.name
+#   next_hop_ilb = module.squid-ilb[0].forwarding_rule_id
+#   //next_hop_ilb = google_compute_forwarding_rule.google_compute_forwarding_rule.id
+#   priority     = 0
+#   description = "Default route to the Internet via SQUID."
+# }

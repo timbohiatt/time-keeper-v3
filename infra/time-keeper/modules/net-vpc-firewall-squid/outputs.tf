@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
+output "default_rules" {
+  description = "Default rule resources."
+  value = {
+    admin = try(google_compute_firewall.allow-admins-squid, null)
+    http  = try(google_compute_firewall.allow-tag-http-squid, null)
+    https = try(google_compute_firewall.allow-tag-https-squid, null)
+    ssh   = try(google_compute_firewall.allow-tag-ssh-squid, null)
+  }
+}
 
-output "SUBNET_CIDR_RANGES" {
-  value = local.subnet_cidr_range
+output "rules" {
+  description = "Custom rule resources."
+  value       = google_compute_firewall.custom-rules
 }

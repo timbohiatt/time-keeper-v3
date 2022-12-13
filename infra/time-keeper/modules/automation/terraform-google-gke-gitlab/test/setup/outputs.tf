@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+output "project_id" {
+  value = module.gke-gitlab-proj.project_id
+}
 
-output "SUBNET_CIDR_RANGES" {
-  value = local.subnet_cidr_range
+output "sa_key" {
+  value     = google_service_account_key.int_test.private_key
+  sensitive = true
 }

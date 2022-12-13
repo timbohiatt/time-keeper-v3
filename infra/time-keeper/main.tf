@@ -44,6 +44,7 @@ locals {
     "bigquerydatatransfer.googleapis.com",
     "bigquery.googleapis.com",
     "dns.googleapis.com",
+    "logging.googleapis.com",
   ]
 }
 
@@ -66,6 +67,6 @@ resource "google_project_service" "project_apis" {
   count   = length(local.services)
   service = element(local.services, count.index)
 
-  disable_dependent_services = true
-  disable_on_destroy         = true
+  disable_dependent_services = false
+  disable_on_destroy         = false
 }

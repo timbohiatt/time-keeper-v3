@@ -17,3 +17,7 @@
 output "PROJECT_ID" {
   value = google_project.project.project_id
 }
+
+output "GKE_CLUSTERS" {
+  value = module.gke_region
+}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+variable "org_id" {
+  description = "The numeric organization id"
+}
 
+variable "folder_id" {
+  description = "The folder to deploy in"
+}
 
-output "SUBNET_CIDR_RANGES" {
-  value = local.subnet_cidr_range
+variable "billing_account" {
+  description = "The billing account id associated with the project, e.g. XXXXXX-YYYYYY-ZZZZZZ"
 }

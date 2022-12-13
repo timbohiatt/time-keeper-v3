@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
+module "gke-gitlab" {
+  source = "../../../examples/simple_example"
 
-output "SUBNET_CIDR_RANGES" {
-  value = local.subnet_cidr_range
+  project_id = var.project_id
 }

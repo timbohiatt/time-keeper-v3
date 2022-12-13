@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-
-output "SUBNET_CIDR_RANGES" {
-  value = local.subnet_cidr_range
+module "gke-gitlab" {
+  source                     = "../../"
+  project_id                 = var.project_id
+  certmanager_email          = "no-reply@${var.project_id}.example.com"
+  gitlab_deletion_protection = false
+  gitlab_db_random_prefix    = true
 }

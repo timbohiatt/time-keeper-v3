@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
-
-output "SUBNET_CIDR_RANGES" {
-  value = local.subnet_cidr_range
+terraform {
+  required_version = ">= 0.13.0"
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = ">= 3.44, < 5.0"
+    }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = ">= 3.44, < 5.0"
+    }
+  }
 }
+
