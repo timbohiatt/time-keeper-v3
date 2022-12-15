@@ -44,7 +44,6 @@ resource "google_service_account" "gke_worker_service_account" {
   display_name = "${var.prefix}-${var.demo_name}-${var.env}-gke-worker"
 }
 
-
 resource "google_project_iam_member" "gke_service_account_iam_editor" {
   project = google_project.project.project_id
   role    = "roles/editor"
