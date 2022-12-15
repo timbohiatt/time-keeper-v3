@@ -104,6 +104,7 @@ resource "google_container_cluster" "gke" {
 
   resource_labels = {
     //mesh_id = "proj-${google_project.project.number}",
+    usage = "workload",
   }
 
   cost_management_config {

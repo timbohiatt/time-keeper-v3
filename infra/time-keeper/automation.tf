@@ -10,6 +10,10 @@ module "gke-gitlab" {
   network_self_link           = module.vpc-spoke-1.self_link
 }
 
+data "google_project" "project" {
+  project_id = google_project.project.project_id
+}
+
 
 locals {
   serviceAccountIAMRoles = [
@@ -64,6 +68,7 @@ resource "google_iam_workload_identity_pool_provider" "gitlab_identity_pool_prov
   }
 }
 
+
 resource "google_service_account" "gitlab_service_account" {
   project      = google_project.project.project_id
   account_id   = "${var.prefix}-${var.demo_name}-gitlab"
@@ -86,7 +91,18 @@ resource "google_service_account_iam_binding" "gitlab_service_account_iam_bindin
   members = [
     "serviceAccount:${google_project.project.project_id}.svc.id.goog[default/gitlab-gitlab-runner]",
     "serviceAccount:${google_project.project.project_id}.svc.id.goog[default/default]",
-    "principalSet://iam.googleapis.com/projects/${google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gitlab_identity_pool.workload_identity_pool_id}/*",
+    "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gitlab_identity_pool.workload_identity_pool_id}/*",
+  ]
+}
+
+resource "google_service_account_iam_binding" "gitlab_account_cluster_iam_binding_developer" {
+  service_account_id = google_service_account.gitlab_service_account.name
+  role               = "roles/container.developer"
+
+  members = [
+    "serviceAccount:${google_project.project.project_id}.svc.id.goog[default/gitlab-gitlab-runner]",
+    "serviceAccount:${google_project.project.project_id}.svc.id.goog[default/default]",
+    "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gitlab_identity_pool.workload_identity_pool_id}/*",
   ]
 }
 

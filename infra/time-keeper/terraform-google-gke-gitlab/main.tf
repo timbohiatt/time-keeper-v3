@@ -265,6 +265,10 @@ module "gke" {
 
   service_account = var.runner_service_account_name
 
+  cluster_resource_labels = {
+    usage = "automation"
+  }
+
   issue_client_certificate = true
 
   node_pools = [
