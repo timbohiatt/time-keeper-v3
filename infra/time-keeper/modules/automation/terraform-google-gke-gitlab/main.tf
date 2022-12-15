@@ -255,13 +255,13 @@ module "gke" {
   region             = var.region
   regional           = true
   kubernetes_version = var.gke_version
-  
+
 
   remove_default_node_pool = true
   initial_node_count       = 1
 
   network           = var.network_name
-  subnetwork        = google_compute_subnetwork.subnetwork.name 
+  subnetwork        = google_compute_subnetwork.subnetwork.name
   ip_range_pods     = "automation-cluster-pod-cidr"
   ip_range_services = "automation-cluster-service-cidr"
 
@@ -278,6 +278,10 @@ module "gke" {
 
   node_pools_oauth_scopes = {
     all = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+
+  cluster_resource_labels {
+    usage = "automation"
   }
 }
 
@@ -373,13 +377,13 @@ data "template_file" "helm_values" {
   template = file("${path.module}/values.yaml.tpl")
 
   vars = {
-    DOMAIN                = local.domain
-    INGRESS_IP            = local.gitlab_address
-    DB_PRIVATE_IP         = google_sql_database_instance.gitlab_db.private_ip_address
-    REDIS_PRIVATE_IP      = google_redis_instance.gitlab.host
-    PROJECT_ID            = var.project_id
-    CERT_MANAGER_EMAIL    = var.certmanager_email
-    GITLAB_RUNNER_INSTALL = var.gitlab_runner_install
+    DOMAIN                             = local.domain
+    INGRESS_IP                         = local.gitlab_address
+    DB_PRIVATE_IP                      = google_sql_database_instance.gitlab_db.private_ip_address
+    REDIS_PRIVATE_IP                   = google_redis_instance.gitlab.host
+    PROJECT_ID                         = var.project_id
+    CERT_MANAGER_EMAIL                 = var.certmanager_email
+    GITLAB_RUNNER_INSTALL              = var.gitlab_runner_install
     GITLAB_RUNNER_SERVICE_ACCOUNT_NAME = var.runner_service_account_name
   }
 }

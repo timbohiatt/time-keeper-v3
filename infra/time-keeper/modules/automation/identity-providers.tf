@@ -81,6 +81,17 @@ resource "google_service_account_iam_binding" "gitlab_service_account_iam_bindin
   ]
 }
 
+resource "google_service_account_iam_binding" "gitlab_account_cluster_iam_binding" {
+  service_account_id = google_service_account.gitlab_service_account.name
+  role               = "roles/container.developer"
+
+  members = [
+    "serviceAccount:${var.project_id}.svc.id.goog[default/gitlab-gitlab-runner]",
+    "serviceAccount:${var.project_id}.svc.id.goog[default/default]",
+    "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gitlab_identity_pool.workload_identity_pool_id}/*",
+  ]
+}
+
 output "GCP_WORKLOAD_IDENTITY_PROVIDER" {
   value = google_iam_workload_identity_pool_provider.gitlab_identity_pool_provider.name
 }
