@@ -21,3 +21,16 @@ output "PROJECT_ID" {
 output "GKE_CLUSTERS" {
   value = module.gke_region
 }
+
+
+output "gl_root_password_instructions" {
+  value = module.gke-gitlab.root_password_instructions
+}
+
+output "gl_root_gitlab_url" {
+  value = module.gke-gitlab.gitlab_url
+}
+
+
+
+

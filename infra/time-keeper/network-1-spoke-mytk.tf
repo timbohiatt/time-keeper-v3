@@ -64,14 +64,14 @@ module "nat-spoke" {
 }
 
 
-resource "google_compute_route" "route-ilb" {
-  project          = google_project.project.project_id
-  name             = "route-egress-spoke-to-egres-nat"
-  dest_range       = "0.0.0.0/0"
-  network          = module.vpc-spoke-1.self_link
-  next_hop_gateway = "default-internet-gateway"
-  //next_hop_ilb = module.squid-ilb[0].forwarding_rule_id
-  //next_hop_ilb = google_compute_forwarding_rule.google_compute_forwarding_rule.id
-  priority    = 0
-  description = "Default route to the Internet via Spoke NAT."
-}
+# resource "google_compute_route" "route-ilb" {
+#   project          = google_project.project.project_id
+#   name             = "route-egress-spoke-to-egres-nat"
+#   dest_range       = "0.0.0.0/0"
+#   network          = module.vpc-spoke-1.self_link
+#   next_hop_gateway = "default-internet-gateway"
+#   //next_hop_ilb = module.squid-ilb[0].forwarding_rule_id
+#   //next_hop_ilb = google_compute_forwarding_rule.google_compute_forwarding_rule.id
+#   priority    = 0
+#   description = "Default route to the Internet via Spoke NAT."
+# }

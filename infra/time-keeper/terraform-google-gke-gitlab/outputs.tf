@@ -20,6 +20,8 @@ output "gitlab_address" {
 }
 
 output "gitlab_url" {
+
+
   value       = "https://gitlab.${local.domain}"
   description = "URL where you can access your GitLab instance"
 }
@@ -54,9 +56,19 @@ output "root_password_instructions" {
 
   Run the following commands to get the root user password:
 
-  gcloud container clusters get-credentials gitlab --zone ${var.region} --project ${var.project_id}
+  gcloud container clusters get-credentials automation --zone ${var.region} --project ${var.project_id}
   kubectl get secret gitlab-gitlab-initial-root-password -o go-template='{{ .data.password }}' | base64 -d && echo
   EOF
 
   description = "Instructions for getting the root user's password for initial setup"
+}
+
+
+output "automation_cluster_cidr" {
+  value = var.gitlab_nodes_subnet_cidr
+}
+
+
+output "automation_pod_cidr" {
+  value = var.gitlab_pods_subnet_cidr
 }

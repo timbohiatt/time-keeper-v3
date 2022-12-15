@@ -28,7 +28,7 @@ resource "google_container_node_pool" "np-internal" {
 
   node_config {
     image_type   = "COS_CONTAINERD"
-    machine_type = "n1-standard-2"
+    machine_type = "e2-standard-2"
 
     disk_size_gb = 100
     disk_type    = "pd-balanced"

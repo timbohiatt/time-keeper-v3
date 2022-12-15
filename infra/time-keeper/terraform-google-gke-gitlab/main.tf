@@ -92,13 +92,11 @@ resource "google_project_iam_member" "project" {
 }
 
 // Networking
-/*resource "google_compute_network" "gitlab" {
+resource "google_compute_network" "gitlab" {
   name                    = "gitlab"
   project                 = module.project_services.project_id
   auto_create_subnetworks = false
-}*/
-
-
+}
 
 resource "google_compute_subnetwork" "subnetwork" {
   name          = "automation"
@@ -118,7 +116,7 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_compute_address" "gitlab" {
-  name         = "automation"
+  name         = "gitlab"
   region       = var.region
   address_type = "EXTERNAL"
   description  = "Gitlab Ingress IP"
@@ -130,7 +128,7 @@ resource "google_compute_address" "gitlab" {
 resource "google_compute_global_address" "gitlab_sql" {
   provider      = google-beta
   project       = var.project_id
-  name          = "automation-sql"
+  name          = "gitlab-sql"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   network       = var.network_self_link
@@ -251,25 +249,27 @@ module "gke" {
   # Create an implicit dependency on service activation
   project_id = module.project_services.project_id
 
-  name               = "gitlab"
+  name               = "automation"
   region             = var.region
   regional           = true
   kubernetes_version = var.gke_version
-  
+
 
   remove_default_node_pool = true
   initial_node_count       = 1
 
   network           = var.network_name
-  subnetwork        = google_compute_subnetwork.subnetwork.name 
+  subnetwork        = google_compute_subnetwork.subnetwork.name
   ip_range_pods     = "automation-cluster-pod-cidr"
   ip_range_services = "automation-cluster-service-cidr"
+
+  service_account = var.runner_service_account_name
 
   issue_client_certificate = true
 
   node_pools = [
     {
-      name         = "gitlab"
+      name         = "automation"
       autoscaling  = false
       machine_type = var.gke_machine_type
       node_count   = 1
@@ -373,13 +373,13 @@ data "template_file" "helm_values" {
   template = file("${path.module}/values.yaml.tpl")
 
   vars = {
-    DOMAIN                = local.domain
-    INGRESS_IP            = local.gitlab_address
-    DB_PRIVATE_IP         = google_sql_database_instance.gitlab_db.private_ip_address
-    REDIS_PRIVATE_IP      = google_redis_instance.gitlab.host
-    PROJECT_ID            = var.project_id
-    CERT_MANAGER_EMAIL    = var.certmanager_email
-    GITLAB_RUNNER_INSTALL = var.gitlab_runner_install
+    DOMAIN                             = local.domain
+    INGRESS_IP                         = local.gitlab_address
+    DB_PRIVATE_IP                      = google_sql_database_instance.gitlab_db.private_ip_address
+    REDIS_PRIVATE_IP                   = google_redis_instance.gitlab.host
+    PROJECT_ID                         = var.project_id
+    CERT_MANAGER_EMAIL                 = var.certmanager_email
+    GITLAB_RUNNER_INSTALL              = var.gitlab_runner_install
     GITLAB_RUNNER_SERVICE_ACCOUNT_NAME = var.runner_service_account_name
   }
 }

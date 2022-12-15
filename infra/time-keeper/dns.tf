@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-resource "google_dns_managed_zone" "dns-zone" {
-  project     = google_project.project.project_id
-  name        = "${var.demo_name}-${var.env}-time-keeper-watch"
-  dns_name    = "${var.demo_name}.${var.env}.${var.domain}."
-  description = "${var.demo_name} ${var.env} time keeper zone"
-}
+# resource "google_dns_managed_zone" "dns-zone" {
+#   project     = google_project.project.project_id
+#   name        = "${var.demo_name}-${var.env}-time-keeper-watch"
+#   dns_name    = "${var.demo_name}.${var.env}.${var.domain}."
+#   description = "${var.demo_name} ${var.env} time keeper zone"
+# }
 
-resource "google_dns_record_set" "record-1" {
-  project = google_project.project.project_id
-  name    = google_dns_managed_zone.dns-zone.dns_name
-  type    = "A"
-  ttl     = 60
+# resource "google_dns_record_set" "record-1" {
+#   project = google_project.project.project_id
+#   name    = google_dns_managed_zone.dns-zone.dns_name
+#   type    = "A"
+#   ttl     = 60
 
-  managed_zone = google_dns_managed_zone.dns-zone.name
+#   managed_zone = google_dns_managed_zone.dns-zone.name
 
-  rrdatas = [google_compute_global_address.gbl-ext-lb.address]
-}
+#   rrdatas = [google_compute_global_address.gbl-ext-lb.address]
+# }
 
-resource "google_dns_record_set" "record-2" {
-  project = google_project.project.project_id
-  name    = "*.${google_dns_managed_zone.dns-zone.dns_name}"
-  type    = "A"
-  ttl     = 60
+# resource "google_dns_record_set" "record-2" {
+#   project = google_project.project.project_id
+#   name    = "*.${google_dns_managed_zone.dns-zone.dns_name}"
+#   type    = "A"
+#   ttl     = 60
 
-  managed_zone = google_dns_managed_zone.dns-zone.name
+#   managed_zone = google_dns_managed_zone.dns-zone.name
 
-  rrdatas = [google_compute_global_address.gbl-ext-lb.address]
-}
+#   rrdatas = [google_compute_global_address.gbl-ext-lb.address]
+# }

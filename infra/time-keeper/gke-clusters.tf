@@ -37,7 +37,16 @@ module "gke_region" {
   master_authorized_networks_cidr_blocks = coalesce([{
     cidr_block   = google_compute_subnetwork.subnet-jump-vm.ip_cidr_range
     display_name = "jump-vm"
-  }, ], try(each.value.master_authorized_networks_cidr_blocks, []))
+    },
+    {
+      cidr_block   = module.gke-gitlab.automation_cluster_cidr
+      display_name = "automation-gke-cluster"
+    },
+    {
+      cidr_block   = module.gke-gitlab.automation_pod_cidr
+      display_name = "automation-gke-pod"
+    },
+  ], try(each.value.master_authorized_networks_cidr_blocks, []))
   //depends_on = [google_compute_firewall.egress-allow-gke-node, google_compute_firewall.ingress-allow-gke-node]
 }
  
