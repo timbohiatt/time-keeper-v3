@@ -55,7 +55,7 @@ module "load_balancer" {
     google_compute_managed_ssl_certificate.lb.self_link
   ]
 
-  
+
   https_redirect = true
   create_address = false
   address        = google_compute_global_address.gbl-ext-lb.self_link

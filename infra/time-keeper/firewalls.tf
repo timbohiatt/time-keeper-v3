@@ -39,7 +39,8 @@ resource "google_compute_firewall" "gke-lb-health-checks-hub" {
     google_service_account.gke_egress_service_account.email,
     google_service_account.gke_worker_service_account.email,
     google_service_account.config_connector_service_account.email,
-    google_service_account.sc-mig-egress-squid.email,
+    google_service_account.gitlab_service_account.email,
+    //google_service_account.sc-mig-egress-squid.email,
   ]
 
   log_config {
@@ -73,7 +74,8 @@ resource "google_compute_firewall" "gke-lb-health-checks-spoke" {
     google_service_account.gke_egress_service_account.email,
     google_service_account.gke_worker_service_account.email,
     google_service_account.config_connector_service_account.email,
-    google_service_account.sc-mig-egress-squid.email,
+    google_service_account.gitlab_service_account.email,
+    //google_service_account.sc-mig-egress-squid.email,
   ]
 
   log_config {

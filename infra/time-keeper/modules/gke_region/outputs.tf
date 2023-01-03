@@ -14,3 +14,7 @@
  * limitations under the License.
  */
 
+
+output "SUBNET_CIDR_RANGES" {
+  value = local.subnet_cidr_range
+}

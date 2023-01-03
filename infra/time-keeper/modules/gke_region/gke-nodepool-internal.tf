@@ -21,14 +21,14 @@ resource "random_integer" "np_int_salt" {
 
 // This Node Pool is Firewall Blocked for EGRESS and Allows ONLY INGRESS traffic.
 resource "google_container_node_pool" "np-internal" {
-  project = var.project_id
-  name = "np-${local.region}-wpl-${random_integer.np_int_salt.result}"
+  project  = var.project_id
+  name     = "np-${local.region}-wpl-${random_integer.np_int_salt.result}"
   location = local.region
   cluster  = google_container_cluster.gke.name
 
   node_config {
     image_type   = "COS_CONTAINERD"
-    machine_type = "n1-standard-2"
+    machine_type = "e2-standard-2"
 
     disk_size_gb = 100
     disk_type    = "pd-balanced"

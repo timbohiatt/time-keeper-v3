@@ -32,12 +32,12 @@ locals {
   ]
 }
 
-
-resource "google_project_iam_member" "autoneg_workload_identity" {
-  project = google_project.project.project_id
-  role    = "roles/iam.workloadIdentityUser"
-  member  = "serviceAccount:${google_project.project.project_id}.svc.id.goog[autoneg-system/autoneg]"
-}
+// Chicken and Egg Scenario.
+#resource "google_project_iam_member" "autoneg_workload_identity" {
+#  project = google_project.project.project_id
+#  role    = "roles/iam.workloadIdentityUser"
+#  member  = "serviceAccount:${google_project.project.project_id}.svc.id.goog[autoneg-system/autoneg]"
+#}
 
 resource "google_project_iam_member" "config_connector_service_account" {
   count   = length(local.CCServiceAccountIAMRoles)
@@ -73,3 +73,12 @@ resource "google_project_iam_member" "gitlab_service_account" {
   role    = element(local.GitLabServiceAccountIAMRoles, count.index)
   member  = "serviceAccount:${var.GitLabServiceAccountEmail}"
 }
+
+
+resource "google_project_iam_member" "gitlab_service_account_native" {
+  count   = length(local.GitLabServiceAccountIAMRoles)
+  project = google_project.project.project_id
+  role    = element(local.GitLabServiceAccountIAMRoles, count.index)
+  member  = "serviceAccount:${google_service_account.gitlab_service_account.email}"
+}
+

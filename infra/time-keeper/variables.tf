@@ -82,6 +82,6 @@ variable "ip_secondary_ranges" {
 }
 
 
-variable "domain"{
+variable "domain" {
   type = string
 }
